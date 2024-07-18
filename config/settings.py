@@ -11,10 +11,18 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
+from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+#.env파일 로드
+load_dotenv()
+SECRET_KEY=os.environ.get('DJANGO_SECRET')
+KAKAO_CLIENT_ID = os.getenv('KAKAO_CLIENT_ID')
+KAKAO_CLIENT_SECRET = os.getenv('KAKAO_CLIENT_SECRET')
+KAKAO_REDIRECT_URI = os.getenv('KAKAO_REDIRECT_URI')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -43,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     
     'auths',
+    'matches',
 ]
 
 MIDDLEWARE = [
@@ -127,3 +136,23 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+#auths앱에서 내가 설정한 User를 사용하겠다고 설정함
+AUTH_USER_MODEL = "auths.TeamUser"
+
+
+# jwt 토큰은 simplejwt의 JWTAuthentication으로 인증
+#API에 접근할 때 헤더에 access_token을 포함한, 유효한 유저만이 접근할 수 있도록 default로 설정해주는 부분이다. 여기서 설정을 하면 API에 일일이 접근권한을 설정하지 않아도 된다
+#위쪽에 있는 인증 클래스부터 실행됨!
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated', #인증된 사용자만 접근
+        # 'rest_framework.permissions.IsAdminUser', # 관리자만 접근
+        # 'rest_framework.permissions.AllowAny', # 누구나 접근
+    ),
+}
